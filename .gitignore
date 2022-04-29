@@ -4,3 +4,5 @@ project/data/pickle_test.pkl
 project/data/SCT_norm.csv
 project/data/brain_images/151673.cloupe
 project/data/brain_images/151673_full_image.tif
+.Rproj.user
+.RDataTmp

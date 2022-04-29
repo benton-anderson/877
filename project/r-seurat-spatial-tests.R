@@ -25,10 +25,9 @@ options(max.print=100)
 
 # Get brain object from Seurat 
 # InstallData("stxBrain")
-brain <- LoadData("stxBrain", type = "anterior1")
-typeof(brain)
-
-data("pbmcSmall")
+# brain <- LoadData("stxBrain", type = "anterior1")
+# typeof(brain)
+# data("pbmcSmall")
 # brain_sctnorm <- SCTransform(brain, assay = "Spatial", verbose = FALSE)
 # brain_sctnorm
 # 
@@ -50,23 +49,44 @@ scecounts <- assays(sce)$counts
 # length(colData(sce)$sample_name)
 # table(colData(sce)$sample_name %in% c(151507, 151669, 151673))
 # assays(sce)$counts[, colData(sce)$sample_name]
-
 # as.matrix(assays(sce)$counts[, colData(sce)$sample_name])
 
-f <- scecounts[, colData(sce)$sample_name %in% c(151507, 151669, 151673)]
-dim(f)
 
-rs <- rowSums(f) > 100
-table(rs)
-f <- f[rs, ]
+### Get the column indices for the 6 columns
+sample_names <- c(151507, 151508, 151669, 151670, 151673, 151674)
+scecounts <- scecounts[, coldata$sample_name %in% sample_names]
+dim(scecounts)
 
-so <- CreateSeuratObject(f)
-sct <- SCTransform(so)
+rowsums <- rowSums(scecounts) > 5000
+table(rowsums)
+# f <- f[rowsums, ]
+
+coldata <- colData(sce)
+dim(coldata)
+coldata <- coldata[coldata$sample_name %in% sample_names, ]
+coldata$sample_name
+
+for (sample in sample_names) {
+  print(sample)
+  data_subset <- scecounts[rowsums, coldata$sample_name == sample]
+  seuratobject <- CreateSeuratObject(data_subset)
+  sct_norm_matrix <- as.matrix(GetAssayData(SCTransform(seuratobject)))
+  sct_filepath <- paste(here(), "/project/data/", sample, "_SCT_norm_sparse.mtx", sep = "")
+  write.csv(sct_norm_matrix, file = sct_filepath)
+  break
+}
+
+here::here()
+here::set_here()
+test <- 'asdf'
+paste(test, 151507, sep="")
+
+# so <- CreateSeuratObject(f)
+# sct <- SCTransform(so)
 
 # $meta.data
 # $assays$SCT
 # $assays$RNA
-
 # $meta.data has interesting before&after stats going from the original "RNA" assay to "SCT" normalized data
 attributes(sct)$meta.data
 
